@@ -70,3 +70,12 @@ plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
 ylabel('zdot - cross-track velocity (km/s)')
 xlabel('Time (sec)')
 grid on
+
+% Question 3
+% Reachability/Controllability
+P = [B A*B A^2*B A^3*B A^4*B A^5*B]; 
+rank(P) % = 6 = n, so reachable
+
+% Observability
+O = [C; C*A; C*A^2; C*A^3; C*A^4; C*A^5];
+rank(O) % = 6 = n, so completely observable
