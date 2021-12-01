@@ -1,3 +1,7 @@
+%% ASEN 5014 - Linear Control Systems
+% Final Project
+% Galen Savidge, Aniket Goel, Andrew Palski
+
 clear; close all; format shortG; clc;
 %% PART A:Linear Systems Analysis
 % Question 2:
