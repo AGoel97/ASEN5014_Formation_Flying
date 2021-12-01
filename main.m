@@ -1,0 +1,72 @@
+clear; close all; format shortG; clc;
+%% PART A:Linear Systems Analysis
+% Question 2:
+% Linear system
+n = sqrt(398600/6778^3);
+A = [0 0 0 1 0 0;
+     0 0 0 0 1 0;
+     0 0 0 0 0 1;
+     3*n^2 0 0 0 2*n 0;
+     0 0 0 -2*n 0 0;
+     0 0 -n^2 0 0 0];
+B = [0 0 0;
+     0 0 0;
+     0 0 0;
+     1 0 0;
+     0 1 0;
+     0 0 1];
+C = [1 0 0 0 0 0;
+     0 1 0 0 0 0;
+     0 0 1 0 0 0];
+D = [0 0 0;
+     0 0 0;
+     0 0 0];
+G = [0;0;0;0;1;0]; %disturbance matrix, disturbance only affects in track dynamics
+B_tot = [B,G];
+D_tot = [D,[0;0;0]];
+x0 = [0; 10; 0; 0; 0; .001]; % initial condition
+r = [0; 5; 0; 0; 0; 0]; % reference 
+d = -.001; % disturbance
+
+ % Eigenvalues
+[E, L] = eig(A);
+evals = diag(L);
+
+% Simulated plant dynamics with no control and including disturbances
+u = [0;0;0];
+u_tot = [u;d]';
+ts = 0:1:6000;
+us = u_tot + zeros(length(ts),4);
+sys = ss(A,B_tot,C,D_tot);
+[ys,~,xs] = lsim(sys,us,ts,x0);
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Simulated States (Positions)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,2),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,3),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
+grid on
+
+figure()
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,4),'LineWidth',2,'Color','r')
+ylabel('xdot - radial velocity (km/s)')
+title('Simulated States (Velocities)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,5),'LineWidth',2,'Color','k')
+ylabel('ydot - in-track velocity (km/s)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
+ylabel('zdot - cross-track velocity (km/s)')
+xlabel('Time (sec)')
+grid on
