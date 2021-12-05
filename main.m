@@ -87,8 +87,8 @@ rank(O) % = 6 = n, so completely observable
 
 % Question 5
 % Luenberger observer matrix
-des_L_poles = []
-
+des_L_poles = [-2, -2.1, -2.2, -2.3, -2.4, -2.5];
+L_transpose = place(A',C',des_L_poles);
 % Closed loop state and error dynamics with full state feedback control
 A_CL_aug = [(A-B*K), B*K;
         0, (A-L*C)];
