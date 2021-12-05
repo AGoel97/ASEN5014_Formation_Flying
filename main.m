@@ -39,7 +39,7 @@ evals = diag(L);
 % Simulated plant dynamics with no control and including disturbances
 u = [0;0;0];
 u_tot = [u;d]';
-ts = 0:1:6000;
+ts = 0:1:18000;
 us = u_tot + zeros(length(ts),4);
 sys = ss(A,B_tot,C,D_tot);
 [ys,~,xs] = lsim(sys,us,ts,x0);
