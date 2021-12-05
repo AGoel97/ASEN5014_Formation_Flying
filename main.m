@@ -30,7 +30,7 @@ B_tot = [B,G];
 D_tot = [D,[0;0;0]];
 x0 = [0; 10; 0; 0; 0; .001]; % initial condition
 r = [0; 5; 0; 0; 0; 0]; % reference 
-d = -.001; % disturbance
+d = -1e-9; % disturbance %CHANGE: set to 1 um/s vs 1 m/s
 
  % Eigenvalues
 [E, L] = eig(A);
