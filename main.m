@@ -3,7 +3,7 @@
 % Galen Savidge, Aniket Goel, Andrew Palski
 
 clear; close all; format shortG; clc;
-%% PART A:Linear Systems Analysis
+%% PART A: Linear Systems Analysis
 % Question 2:
 % Linear system
 n = sqrt(398600/6778^3);
@@ -32,7 +32,7 @@ x0 = [0; 10; 0; 0; 0; .001]; % initial condition
 r = [0; 5; 0; 0; 0; 0]; % reference 
 d = -1e-9; % disturbance %CHANGE: set to 1 um/s vs 1 m/s
 
- % Eigenvalues
+% Eigenvalues
 [E, L] = eig(A);
 evals = diag(L);
 
@@ -84,6 +84,7 @@ rank(P) % = 6 = n, so reachable
 O = [C; C*A; C*A^2; C*A^3; C*A^4; C*A^5];
 rank(O) % = 6 = n, so completely observable
 
+%% PART B
 
 % Question 5
 % Luenberger observer matrix
@@ -137,3 +138,31 @@ plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
 ylabel('zdot - cross-track velocity (km/s)')
 xlabel('Time (sec)')
 grid on
+
+% Question 6
+% Set up cost function using Bryson's rules
+xmax = ones(1, 6); % TBD
+umax = 1 / 1300 * 1e-3 % Maximum acceleration per thruster [km/s^2]
+
+% Tuning parameters
+alpha = ones(1, 6); % State error weights
+alpha = alpha./sum(alpha)
+beta = ones(1, 3); % Input weights
+beta = beta./sum(beta)
+rho = 1;
+
+Q = diag(alpha./(xmax.^2))
+R = rho*diag(beta/umax)
+
+% Use LQR to generate CL gain from cost function
+[K_lqr,W,evals_lqr] = lqr(sys_ol,Q,R);
+
+% Feed-forward gain for zero steady-state offset
+F_lqr = inv(C/(-A+B*K_lqr)*B);
+
+% Assemble closed-loop system
+A_cl = A - B*K;
+B_cl = [B*F_lqr G];
+C_cl = C;
+D_cl = D;
+sys_cl = sys(A_cl, B_cl, C_cl, D_cl);
