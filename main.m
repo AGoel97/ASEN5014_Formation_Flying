@@ -171,7 +171,7 @@ sgtitle('Actuator Response vs Time');
 
 % Question 5
 % Luenberger observer matrix
-des_L_poles = [-2, -2.1, -2.2, -2.3, -2.4, -2.5]-3;
+des_L_poles = [-3, -3.1, -3.2, -3.3, -3.4, -3.5];
 L_transpose = place(A',C',des_L_poles);
 L = L_transpose';
 % Closed loop state and error dynamics with full state feedback control
@@ -252,3 +252,73 @@ plot(ax,ts,xs(:,12),'LineWidth',2,'Color','b')
 ylabel('z - cross-track position (km)')
 xlabel('Time (sec)')
 grid on
+
+% Simulating with nonzero initial error
+e0 = [1 1 1 .1 .1 .1]';
+x_cl_aug0 = [x0;e0];
+
+us = r_aug_FSF;
+sys = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
+[ys,~,xs] = lsim(sys,us,ts,x_cl_aug0);
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Simulated States (Positions)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,2),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,3),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
+grid on
+
+figure()
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,4),'LineWidth',2,'Color','r')
+ylabel('xdot - radial velocity (km/s)')
+title('Simulated States (Velocities)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,4),'LineWidth',2,'Color','k')
+ylabel('ydot - in-track velocity (km/s)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
+ylabel('zdot - cross-track velocity (km/s)')
+xlabel('Time (sec)')
+grid on
+
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,7),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Error (Positions)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,8),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,9),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
+grid on
+
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,10),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Error (Velocities)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,11),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,12),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
