@@ -89,8 +89,9 @@ rank(O) % = 6 = n, so completely observable
 
 % Try without integral control at first
 
-K = place(A,B,[-0.0013149 -0.00327 -0.00156 -.00301 -.00264 -.000828]);
-%K = place(A,B,-.005*rand(1,6));
+%K = place(A,B,...
+    %[-0.0010652 -0.0016794 -0.0013118 -.0018838 -.00088127 -.00090389]);
+K = place(A,B,-.002*rand(1,6));
 F = inv(C/(-A+B*K)*B);
 
 Acl_FSF = A - B*K;
@@ -100,15 +101,38 @@ Dcl_FSF = [D*F zeros(3,1)];
 
 sys_FSF = ss(Acl_FSF, Bcl_FSF, Ccl_FSF, Dcl_FSF);
 
+% Having issues getting integral control to not overshoot
+%With integral control, first set up augmented matrices
+
+% Aaug_FSF = [A zeros(6,3);-C zeros(3)];
+% Baug_FSF = [B; zeros(3)];
+% Caug_FSF = [C zeros(3)];
+% Daug_FSF = zeros(3);
+% Faug_FSF = [zeros(6,3);eye(3)];
+% Gaug_FSF = [G; zeros(3,1)];
+% 
+% Kaug_FSF = place(Aaug_FSF,Baug_FSF,...
+%     -.003*rand(1,9));
+%     %[-0.0013149 -0.00327 -0.00156 -.00301 -.00264 -.000828 -.0029 -.002 -.0015]);
+%     
+% Acl_FSF = Aaug_FSF - Baug_FSF*Kaug_FSF;
+% Bcl_FSF = [Faug_FSF Gaug_FSF];
+% Ccl_FSF = Caug_FSF;
+% Dcl_FSF = [Daug_FSF zeros(3,1)];
+% 
+% sys_FSF = ss(Acl_FSF, Bcl_FSF, Ccl_FSF, Dcl_FSF);
+
 
 r_aug_FSF = repmat([0 .5 0 d],length(ts),1);%reference input augmented with disturbance
 
 [y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, x0);
+%[y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, [x0; zeros(3,1)]); %integral control version
 
 %Check actuators
 u = zeros(3,length(ts));
 for ii = 1:length(ts)
-    u(:,ii) = F*[0;.5;0] - K * x_FSF(ii,:)';
+    u(:,ii) = F*[0;.5;0] - K * x_FSF(ii,:)'; %non-integral version
+    %u(:,ii) = -Kaug_FSF * x_FSF(ii,:)'; %integral control version
 end
 
 u = 1000 * u; %convert to m/s
