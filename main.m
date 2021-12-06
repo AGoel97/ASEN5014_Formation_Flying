@@ -171,11 +171,12 @@ sgtitle('Actuator Response vs Time');
 
 % Question 5
 % Luenberger observer matrix
-des_L_poles = [-2, -2.1, -2.2, -2.3, -2.4, -2.5];
+des_L_poles = [-2, -2.1, -2.2, -2.3, -2.4, -2.5]-3;
 L_transpose = place(A',C',des_L_poles);
+L = L_transpose';
 % Closed loop state and error dynamics with full state feedback control
 A_CL_aug = [(A-B*K), B*K;
-        0, (A-L*C)];
+        zeros(size(A-B*K)), (A-L*C)];
 B_CL_aug = [B*F; zeros(size(B*F))];
 C_CL_aug = [C, zeros(size(C))];
 D_CL_aug = D_tot;
@@ -185,11 +186,9 @@ B_CL_aug_tot = [B_CL_aug, [G;G]];
 e0 = zeros(6,1);
 x_cl_aug0 = [x0;e0];
 
-u_tot = [r;d];
-ts = 0:1:18000;
-us = u_tot + zeros(length(ts),4);
+us = r_aug_FSF;
 sys = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
-[ys,~,xs] = lsim(sys,us,ts,x0);
+[ys,~,xs] = lsim(sys,us,ts,x_cl_aug0);
 figure();
 ax = subplot(3,1,1);
 plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
@@ -219,5 +218,37 @@ grid on
 ax = subplot(3,1,3);
 plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
 ylabel('zdot - cross-track velocity (km/s)')
+xlabel('Time (sec)')
+grid on
+
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,7),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Error (Positions)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,8),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,9),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
+grid on
+
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,10),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Error (Velocities)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,11),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,12),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
 xlabel('Time (sec)')
 grid on
