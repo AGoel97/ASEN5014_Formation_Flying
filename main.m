@@ -41,8 +41,8 @@ u = [0;0;0];
 u_tot = [u;d]';
 ts = 0:1:18000;
 us = u_tot + zeros(length(ts),4);
-sys = ss(A,B_tot,C,D_tot);
-[ys,~,xs] = lsim(sys,us,ts,x0);
+sys_OL = ss(A,B_tot,C,D_tot);
+[ys,~,xs] = lsim(sys_OL,us,ts,x0);
 figure();
 ax = subplot(3,1,1);
 plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
@@ -187,8 +187,8 @@ e0 = zeros(6,1);
 x_cl_aug0 = [x0;e0];
 
 us = r_aug_FSF;
-sys = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
-[ys,~,xs] = lsim(sys,us,ts,x_cl_aug0);
+sys_CL_aug = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
+[ys,~,xs] = lsim(sys_CL_aug,us,ts,x_cl_aug0);
 figure();
 ax = subplot(3,1,1);
 plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
@@ -212,7 +212,7 @@ ylabel('xdot - radial velocity (km/s)')
 title('Simulated States (Velocities)')
 grid on
 ax = subplot(3,1,2);
-plot(ax,ts,xs(:,4),'LineWidth',2,'Color','k')
+plot(ax,ts,xs(:,5),'LineWidth',2,'Color','k')
 ylabel('ydot - in-track velocity (km/s)')
 grid on
 ax = subplot(3,1,3);
@@ -258,8 +258,8 @@ e0 = [1 1 1 .1 .1 .1]';
 x_cl_aug0 = [x0;e0];
 
 us = r_aug_FSF;
-sys = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
-[ys,~,xs] = lsim(sys,us,ts,x_cl_aug0);
+sys_CL_aug = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
+[ys,~,xs] = lsim(sys_CL_aug,us,ts,x_cl_aug0);
 figure();
 ax = subplot(3,1,1);
 plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
@@ -283,7 +283,7 @@ ylabel('xdot - radial velocity (km/s)')
 title('Simulated States (Velocities)')
 grid on
 ax = subplot(3,1,2);
-plot(ax,ts,xs(:,4),'LineWidth',2,'Color','k')
+plot(ax,ts,xs(:,5),'LineWidth',2,'Color','k')
 ylabel('ydot - in-track velocity (km/s)')
 grid on
 ax = subplot(3,1,3);
@@ -330,23 +330,87 @@ umax = 1 / 1300 * 1e-3 % Maximum acceleration per thruster [km/s^2]
 
 % Tuning parameters
 alpha = ones(1, 6); % State error weights
-alpha = alpha./sum(alpha)
+alpha = alpha./sum(alpha);
 beta = ones(1, 3); % Input weights
-beta = beta./sum(beta)
-rho = 1;
+beta = beta./sum(beta);
+rho = 2e6;
 
 Q = diag(alpha./(xmax.^2))
 R = rho*diag(beta/umax)
 
 % Use LQR to generate CL gain from cost function
-[K_lqr,W,evals_lqr] = lqr(sys_ol,Q,R);
+[K_LQR,W,evals_LQR] = lqr(A,B,Q,R);
 
 % Feed-forward gain for zero steady-state offset
-F_lqr = inv(C/(-A+B*K_lqr)*B);
+F_LQR = inv(C/(-A+B*K_LQR)*B);
 
-% Assemble closed-loop system
-A_cl = A - B*K;
-B_cl = [B*F_lqr G];
-C_cl = C;
-D_cl = D;
-sys_cl = sys(A_cl, B_cl, C_cl, D_cl);
+% Assemble closed-loop system (with disturbance)
+Acl_LQR = A - B*K_LQR;
+Bcl_LQR = [B*F_LQR, G];
+Ccl_LQR = C;
+Dcl_LQR = [D, zeros(3,1)];
+syscl_LQR = ss(Acl_LQR, Bcl_LQR, Ccl_LQR, Dcl_LQR);
+
+% Simulate system
+[ys,~,xs] = lsim(syscl_LQR,r_aug_FSF,ts,x0);
+
+% Reconstruct inputs
+rs = repmat([0 0.5 0], length(ts), 1);
+u = F_LQR*rs' - K_LQR*xs';
+u = u * 1e3;
+
+figure();
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,1),'LineWidth',2,'Color','r')
+ylabel('x - radial position (km)')
+title('Simulated States (Positions)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,2),'LineWidth',2,'Color','k')
+ylabel('y - in-track position (km)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,3),'LineWidth',2,'Color','b')
+ylabel('z - cross-track position (km)')
+xlabel('Time (sec)')
+grid on
+
+figure()
+ax = subplot(3,1,1);
+plot(ax,ts,xs(:,4),'LineWidth',2,'Color','r')
+ylabel('xdot - radial velocity (km/s)')
+title('Simulated States (Velocities)')
+grid on
+ax = subplot(3,1,2);
+plot(ax,ts,xs(:,5),'LineWidth',2,'Color','k')
+ylabel('ydot - in-track velocity (km/s)')
+grid on
+ax = subplot(3,1,3);
+plot(ax,ts,xs(:,6),'LineWidth',2,'Color','b')
+ylabel('zdot - cross-track velocity (km/s)')
+xlabel('Time (sec)')
+grid on
+
+figure()
+subplot(3,1,1);
+plot(ts,u(1,:),'LineWidth',2,'Color','r');
+hold on;
+plot([0 max(ts)],[0.000769 0.000769],'k:');
+plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+ylabel('Radial Actuator Response (m/s^2)');
+
+subplot(3,1,2);
+plot(ts,u(2,:),'LineWidth',2,'Color','k');
+hold on;
+plot([0 max(ts)],[0.000769 0.000769],'k:');
+plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+ylabel('In-Track Actuator Response (m/s^2)');
+
+subplot(3,1,3);
+plot(ts,u(3,:),'LineWidth',2,'Color','b');
+hold on;
+plot([0 max(ts)],[0.000769 0.000769],'k:');
+plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+ylabel('Cross-Track Actuator Response (m/s^2)');
+xlabel('Time (sec)');
+sgtitle('Actuator Response vs Time');
