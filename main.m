@@ -278,15 +278,15 @@ xlabel('Time (sec)')
 grid on
 ax = subplot(3,2,2);
 plot(ax,ts,xs(:,10),'LineWidth',2,'Color','r')
-ylabel('x - radial position (km)')
+ylabel('x - radial velocity (km)')
 grid on
 ax = subplot(3,2,4);
 plot(ax,ts,xs(:,11),'LineWidth',2,'Color','k')
-ylabel('y - in-track position (km)')
+ylabel('y - in-track velocity (km)')
 grid on
 ax = subplot(3,2,6);
 plot(ax,ts,xs(:,12),'LineWidth',2,'Color','b')
-ylabel('z - cross-track position (km)')
+ylabel('z - cross-track velocity (km)')
 xlabel('Time (sec)')
 sgtitle('Observer Error (e(0) = 0)')
 
@@ -348,15 +348,15 @@ xlabel('Time (sec)')
 grid on
 ax = subplot(3,2,2);
 plot(ax,ts,xs(:,10),'LineWidth',2,'Color','r')
-ylabel('x - radial position (km)')
+ylabel('x - radial velocity (km)')
 grid on
 ax = subplot(3,2,4);
 plot(ax,ts,xs(:,11),'LineWidth',2,'Color','k')
-ylabel('y - in-track position (km)')
+ylabel('y - in-track velocity (km)')
 grid on
 ax = subplot(3,2,6);
 plot(ax,ts,xs(:,12),'LineWidth',2,'Color','b')
-ylabel('z - cross-track position (km)')
+ylabel('z - cross-track velocity (km)')
 xlabel('Time (sec)')
 sgtitle('Observer Error (e(0) \neq 0)')
 
