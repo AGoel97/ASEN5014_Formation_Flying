@@ -28,7 +28,9 @@ D = [0 0 0;
 G = [0;0;0;0;1;0]; %disturbance matrix, disturbance only affects in track dynamics
 B_tot = [B,G];
 D_tot = [D,[0;0;0]];
-x0 = [0; 10; 0; 0; 0; .001]; % initial condition
+%x0 = [0; 10; 0; 0; 0; .001]; % initial condition
+%x0 = [-.75; 5; 0; -.001; 0; .001];
+x0 = [0; 5; 0; -.001; 0; .001];
 r = [0; 5; 0; 0; 0; 0]; % reference 
 d = -1e-9; % disturbance %CHANGE: set to 1 um/s vs 1 m/s
 
@@ -91,7 +93,11 @@ rank(O) % = 6 = n, so completely observable
 
 %K = place(A,B,...
     %[-0.0010652 -0.0016794 -0.0013118 -.0018838 -.00088127 -.00090389]);
-K = place(A,B,-.002*rand(1,6));
+    %[-0.0006734 -0.0013248 -0.0015337 -0.0018912 -0.0019766 -0.0013533]);
+    %[-0.0014447 -0.0019018 -0.00079164 -0.0013151 -0.0010307 -0.00079626]);
+%K = place(A,B,[-.00079626 -.00079164 -.002*rand(1,4)]);
+K = place(A,B,...
+    [-0.00110777413157877 -0.00106524700494181 -0.000791640000001095 -0.000903891418517599 -0.000796260000000242 -0.00167939484143928]);
 F = inv(C/(-A+B*K)*B);
 
 Acl_FSF = A - B*K;
@@ -138,26 +144,36 @@ end
 u = 1000 * u; %convert to m/s
 
 figure();
+clf;
 ax = subplot(3,1,1);
 plot(ax,ts,x_FSF(:,1),'LineWidth',2,'Color','r')
+hold on;
+yline(.25,':');yline(-.25,':');
+yline(.05,'--');yline(-.05,'--');
 ylabel('x - radial position (km)')
-title('Simulated States (Positions)')
 grid on
 ax = subplot(3,1,2);
 plot(ax,ts,x_FSF(:,2),'LineWidth',2,'Color','k')
+hold on;
+yline(.5+.25,':');yline(.5-.25,':');
+yline(.5+.05,'--');yline(.5-.05,'--');
 ylabel('y - in-track position (km)')
 grid on
 ax = subplot(3,1,3);
 plot(ax,ts,x_FSF(:,3),'LineWidth',2,'Color','b')
+hold on;
+yline(.25,':');yline(-.25,':');
+yline(.05,'--');yline(-.05,'--');
 ylabel('z - cross-track position (km)')
 xlabel('Time (sec)')
 grid on
+sgtitle('Full State Feedback Position Response');
 
 figure()
+clf;
 ax = subplot(3,1,1);
 plot(ax,ts,x_FSF(:,4),'LineWidth',2,'Color','r')
 ylabel('xdot - radial velocity (km/s)')
-title('Simulated States (Velocities)')
 grid on
 ax = subplot(3,1,2);
 plot(ax,ts,x_FSF(:,5),'LineWidth',2,'Color','k')
@@ -168,30 +184,32 @@ plot(ax,ts,x_FSF(:,6),'LineWidth',2,'Color','b')
 ylabel('zdot - cross-track velocity (km/s)')
 xlabel('Time (sec)')
 grid on
+sgtitle('Full State Feedback Velocity Response');
 
 figure()
+clf
 subplot(3,1,1);
 plot(ts,u(1,:),'LineWidth',2,'Color','r');
 hold on;
-plot([0 max(ts)],[0.000769 0.000769],'k:');
-plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+plot([0 max(ts)],[0.00769 0.00769],'k:');
+plot([0 max(ts)],[-0.00769 -0.00769],'k:');
 ylabel('Radial Actuator Response (m/s^2)');
 
 subplot(3,1,2);
 plot(ts,u(2,:),'LineWidth',2,'Color','k');
 hold on;
-plot([0 max(ts)],[0.000769 0.000769],'k:');
-plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+plot([0 max(ts)],[0.00769 0.00769],'k:');
+plot([0 max(ts)],[-0.00769 -0.00769],'k:');
 ylabel('In-Track Actuator Response (m/s^2)');
 
 subplot(3,1,3);
 plot(ts,u(3,:),'LineWidth',2,'Color','b');
 hold on;
-plot([0 max(ts)],[0.000769 0.000769],'k:');
-plot([0 max(ts)],[-0.000769 -0.000769],'k:');
+plot([0 max(ts)],[0.00769 0.00769],'k:');
+plot([0 max(ts)],[-0.00769 -0.00769],'k:');
 ylabel('Cross-Track Actuator Response (m/s^2)');
 xlabel('Time (sec)');
-sgtitle('Actuator Response vs Time');
+sgtitle('Full State Feedback Actuator Response vs Time');
 
 % Question 5
 % Luenberger observer matrix
@@ -350,7 +368,7 @@ xlabel('Time (sec)')
 % Question 6
 % Set up cost function using Bryson's rules
 xmax = ones(1, 6); % TBD
-umax = 1 / 1300 * 1e-3 % Maximum acceleration per thruster [km/s^2]
+umax = 10 / 1300 * 1e-3 % Maximum acceleration per thruster [km/s^2]
 
 % Tuning parameters
 alpha = ones(1, 6); % State error weights
