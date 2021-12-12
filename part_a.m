@@ -13,7 +13,7 @@ clear; close all; format shortG; clc;
 %x0 = [-.75; 5; 0; -.001; 0; .001];
 x0 = [0; 5; 0; -.001; 0; .001];
 
-d = -1e-9; % Disturbance of 100 um/s^2 [km/s^2]
+d = -1e-9; % Disturbance of 1 um/s^2 [km/s^2]
 
 % Eigenvalues
 [E, L] = eig(A);

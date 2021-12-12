@@ -51,7 +51,7 @@ Gaug = [G; zeros(3,1)];
 % sys_FSF = ss(Acl_FSF, Bcl_FSF, Ccl_FSF, Dcl_FSF);
 
 
-r_aug_FSF = repmat([0 .5 0 d],length(ts),1);%reference input augmented with disturbance
+r_aug_FSF = repmat([r' d],length(ts),1);%reference input augmented with disturbance
 
 [y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, x0);
 %[y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, [x0; zeros(3,1)]); %integral control version

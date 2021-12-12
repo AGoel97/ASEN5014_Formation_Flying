@@ -25,7 +25,7 @@ us = repmat([r', d],length(ts),1); % Reference input augmented with disturbance
 
 % Question 5
 % Luenberger observer matrix
-des_L_poles = [-3, -3.1, -3.2, -3.3, -3.4, -3.5]*0.01;
+des_L_poles = [-3, -3.1, -3.2, -3.3, -3.4, -3.5];
 L_transpose = place(A',C',des_L_poles);
 L = L_transpose';
 % Closed loop state and error dynamics with full state feedback control
@@ -45,9 +45,10 @@ sys_CL_aug = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
 
 plot_state(ts, xs, 'Simulated States (With Observer, e(0) = 0)')
 plot_state(ts, xs(:,7:12), 'Observer Error (e(0) = 0)')
+plot_actuator_responses(ts, rs, xs, F, K, umax, 'Actuator Responses (With Observer, e(0) = 0)')
 
 % Simulating with nonzero initial error
-e0 = [1 1 1 .1 .1 .1]';
+e0 = [1 1 1 .1 .1 .1]'*0.5;
 x_cl_aug0 = [x0;e0];
 
 sys_CL_aug = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
@@ -55,6 +56,7 @@ sys_CL_aug = ss(A_CL_aug,B_CL_aug_tot,C_CL_aug,D_CL_aug);
 
 plot_state(ts, xs, 'Simulated States (With Observer, e(0) \neq 0)')
 plot_state(ts, xs(:,7:12), 'Observer Error (e(0) \neq 0)')
+plot_actuator_responses(ts, rs, xs, F, K, umax, ['Actuator Responses (With Observer, e(0) \neq 0)'])
 
 % Question 6
 % Set up cost function using Bryson's rules
@@ -65,7 +67,7 @@ alpha = ones(1, 6); % State error weights
 alpha = alpha./sum(alpha);
 beta = ones(1, 3); % Input weights
 beta = beta./sum(beta);
-rho = 2e7;
+rho = 1e7;
 
 Q = diag(alpha./(xmax.^2))
 R = rho*diag(beta/umax)
@@ -86,7 +88,7 @@ Dcl_LQR = D_tot;
 syscl_LQR = ss(Acl_LQR, Bcl_LQR, Ccl_LQR, Dcl_LQR);
 
 % Simulate system
-[ys,~,xs] = lsim(syscl_LQR,us,ts,[x0; zeros(6,1)]);
+[ys,~,xs] = lsim(syscl_LQR,us,ts,[x0; e0]);
 
-plot_state(ts, xs, 'Simualted States (LQR)')
+plot_state(ts, xs, 'Simulated States (LQR)')
 plot_actuator_responses(ts, rs, xs, F_LQR, K_LQR, umax, 'Actuator Responses (LQR)')

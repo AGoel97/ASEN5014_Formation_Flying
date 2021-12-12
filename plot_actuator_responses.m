@@ -10,7 +10,7 @@ function plot_actuator_responses(ts, rs, xs, F, K, u_max, title)
 
 % Reconstruct inputs
 u = F*rs - K*xs(:,1:6)';
-u = u * 1e3; % Convert to m/s
+u = u * 1e3; % Convert to m/s^2
 u_max = u_max * 1e3;
 
 figure()
