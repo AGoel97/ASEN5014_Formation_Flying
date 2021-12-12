@@ -1,4 +1,4 @@
-function plot_actuator_responses(ts, rs, xs, F, K, u_max, title)
+function dV = plot_actuator_responses(ts, rs, xs, F, K, u_max, title)
 % Arguments:
 %   ts: Time history [sec]
 %   rs: Reference history [km]
@@ -12,7 +12,10 @@ function plot_actuator_responses(ts, rs, xs, F, K, u_max, title)
 u = F*rs - K*xs(:,1:6)';
 u = u * 1e3; % Convert to m/s^2
 u_max = u_max * 1e3;
-
+for i = size(u,2)
+    norm_u(i) = norm(u(:,i));
+end
+dV = trapz(ts,norm_u);
 figure()
 fig = gcf;
 fig.Position = [0 50 1000 650];
