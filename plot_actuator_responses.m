@@ -38,4 +38,5 @@ plot([0 max(ts)],[u_max u_max],'k:')
 plot([0 max(ts)],[-u_max -u_max],'k:')
 ylabel('Cross-Track Actuator Response (m/s^2)')
 xlabel('Time (sec)')
+
 sgtitle(title);

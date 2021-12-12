@@ -65,7 +65,7 @@ alpha = ones(1, 6); % State error weights
 alpha = alpha./sum(alpha);
 beta = ones(1, 3); % Input weights
 beta = beta./sum(beta);
-rho = 2e6;
+rho = 2e7;
 
 Q = diag(alpha./(xmax.^2))
 R = rho*diag(beta/umax)
