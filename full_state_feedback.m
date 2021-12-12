@@ -8,8 +8,6 @@ clear; close all; format shortG; clc;
 [A, B, C, D, G, B_tot, D_tot] = sys_setup();
 
 % Initial condition
-%x0 = [0; 10; 0; 0; 0; .001]; 
-%x0 = [-.75; 5; 0; -.001; 0; .001];
 x0 = [0; 5; 0; -.001; 0; .001];
 
 r = [0; 0.5; 0]; % Reference input [km]
@@ -38,23 +36,9 @@ Daug = zeros(3);
 Faug = [zeros(6,3);eye(3)];
 Gaug = [G; zeros(3,1)];
 
-% Having issues getting integral control to not overshoot
-% Kaug_FSF = place(Aaug_FSF,Baug_FSF,...
-%     -.003*rand(1,9));
-%     %[-0.0013149 -0.00327 -0.00156 -.00301 -.00264 -.000828 -.0029 -.002 -.0015]);
-%     
-% Acl_FSF = Aaug_FSF - Baug_FSF*Kaug_FSF;
-% Bcl_FSF = [Faug_FSF Gaug_FSF];
-% Ccl_FSF = Caug_FSF;
-% Dcl_FSF = [Daug_FSF zeros(3,1)];
-% 
-% sys_FSF = ss(Acl_FSF, Bcl_FSF, Ccl_FSF, Dcl_FSF);
-
-
 r_aug_FSF = repmat([r' d],length(ts),1);%reference input augmented with disturbance
 
 [y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, x0);
-%[y_FSF,~,x_FSF] = lsim(sys_FSF, r_aug_FSF, ts, [x0; zeros(3,1)]); %integral control version
 
-plot_state(ts, x_FSF, 'Simlated States (Full State Feedback)')
+plot_state(ts, x_FSF, 'Simulated States (Full State Feedback)')
 plot_actuator_responses(ts, rs, x_FSF, F, K, umax, 'Actuator Responses (Full State Feedback)')

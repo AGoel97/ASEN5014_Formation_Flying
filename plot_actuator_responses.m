@@ -12,10 +12,9 @@ function dV = plot_actuator_responses(ts, rs, xs, F, K, u_max, title)
 u = F*rs - K*xs(:,1:6)';
 u = u * 1e3; % Convert to m/s^2
 u_max = u_max * 1e3;
-for i = size(u,2)
-    norm_u(i) = norm(u(:,i));
-end
-dV = trapz(ts,norm_u);
+
+dV = trapz(ts,u(1,:)) + trapz(ts,u(2,:)) + trapz(ts,u(3,:));
+
 figure()
 fig = gcf;
 fig.Position = [0 50 1000 650];
@@ -32,7 +31,7 @@ plot(ts,u(2,:),'LineWidth',2,'Color','k')
 hold on
 plot([0 max(ts)],[u_max u_max],'k:')
 plot([0 max(ts)],[-u_max -u_max],'k:')
-ylabel('In-Track Actuator Response (m/s^2)')
+ylabel('Along-Track Actuator Response (m/s^2)')
 
 subplot(3,1,3)
 plot(ts,u(3,:),'LineWidth',2,'Color','b')
