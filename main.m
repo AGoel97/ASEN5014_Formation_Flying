@@ -67,10 +67,10 @@ alpha = ones(1, 6); % State error weights
 alpha = alpha./sum(alpha);
 beta = ones(1, 3); % Input weights
 beta = beta./sum(beta);
-rho = 1e7;
+rho = 100;
 
 Q = diag(alpha./(xmax.^2))
-R = rho*diag(beta/umax)
+R = rho*diag(beta/(umax^2))
 
 % Use LQR to generate CL gain from cost function
 [K_LQR,W,evals_LQR] = lqr(A,B,Q,R);
